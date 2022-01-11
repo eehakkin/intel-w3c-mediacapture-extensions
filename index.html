@@ -425,6 +425,9 @@ partial interface MediaStreamTrack {
       <pre class="idl"
 >partial dictionary MediaTrackSupportedConstraints {
   boolean backgroundBlur = true;
+  boolean backgroundReplacement = true;<!--
+  boolean backgroundReplacementMode = true;
+  boolean backgroundReplacementSource = true;-->
 };</pre>
       <section class="notoc">
         <h4>Dictionary {{MediaTrackSupportedConstraints}} Members</h4>
@@ -434,6 +437,21 @@ partial interface MediaStreamTrack {
             <p>Whether <a>background blur</a> constraining is
             recognized.</p>
           </dd>
+          <dt><dfn><code>backgroundReplacement</code></dfn> of type <span class="idlMemberType">{{boolean}}</span>, defaulting to <code>true</code></dt>
+          <dd>
+            <p>Whether <a>background replacement</a> constraining is
+            recognized.</p>
+          </dd><!--
+          <dt><dfn><code>backgroundReplacementMode</code></dfn> of type <span class="idlMemberType">{{boolean}}</span>, defaulting to <code>true</code></dt>
+          <dd>
+            <p>Whether <a>background replacement mode</a> constraining
+            is recognized.</p>
+          </dd>
+          <dt><dfn><code>backgroundReplacementSource</code></dfn> of type <span class="idlMemberType">{{boolean}}</span>, defaulting to <code>true</code></dt>
+          <dd>
+            <p>Whether <a>background replacement source</a> constraining
+            is recognized.</p>
+          </dd>-->
         </dl>
       </section>
     </section>
@@ -441,7 +459,9 @@ partial interface MediaStreamTrack {
       <h3>{{MediaTrackCapabilities}}</h3>
       <pre class="idl"
 >partial dictionary MediaTrackCapabilities {
-  MediaSettingsRange backgroundBlur;
+  MediaSettingsRange  backgroundBlur;
+  sequence&lt;DOMString&gt; backgroundReplacement;<!--
+  sequence&lt;DOMString&gt; backgroundReplacementMode;-->
 };</pre>
       <section class="notoc">
         <h4>Dictionary {{MediaTrackCapabilities}} Members</h4>
@@ -452,14 +472,38 @@ partial interface MediaStreamTrack {
             Values are numeric.
             Increasing values indicate increasing background blur.</p>
           </dd>
+          <dt><dfn><code>backgroundReplacement</code></dfn> of type <span class="idlMemberType">sequence&lt;{{DOMString}}&gt;</span></dt>
+          <dd>
+            <p>A sequence of supported <a>background replacement</a> modes.
+            Each string MUST be one of the members of
+            {{BackgroundReplacementMode}}.</p>
+          </dd><!--
+          <dt><dfn><code>backgroundReplacementMode</code></dfn> of type <span class="idlMemberType">sequence&lt;{{DOMString}}&gt;</span></dt>
+          <dd>
+            <p>A sequence of supported <a>background replacement modes</a>.
+            Each string MUST be one of the members of
+            {{BackgroundReplacementMode}}.</p>
+          </dd>-->
         </dl>
       </section>
     </section>
     <section>
       <h3>{{MediaTrackConstraintSet}}</h3>
       <pre class="idl"
+>dictionary ConstrainBackgroundReplacementParameters {
+  (ImageBitmapSource or sequence&lt;ImageBitmapSource&gt;) exact;
+  (ImageBitmapSource or sequence&lt;ImageBitmapSource&gt;) ideal;
+};</pre>
+      <pre class="idl"
+>typedef (ImageBitmapSource or
+         sequence&lt;ImageBitmapSource&gt; or
+         ConstrainBackgroundReplacementParameters) ConstrainBackgroundReplacement;</pre>
+      <pre class="idl"
 >partial dictionary MediaTrackConstraintSet {
-  MediaSettingsRange backgroundBlur;
+  MediaSettingsRange             backgroundBlur;
+  ConstrainBackgroundReplacement backgroundReplacement;<!--
+  ConstrainDOMString             backgroundReplacementMode;
+  ConstrainBackgroundReplacement backgroundReplacementSource;-->
 };</pre>
       <section class="notoc">
         <h4>Dictionary {{MediaTrackConstraintSet}} Members</h4>
@@ -468,6 +512,23 @@ partial interface MediaStreamTrack {
           <dd>
             <p>See <a>background blur</a> constrainable property.</p>
           </dd>
+          <dt><dfn><code>backgroundReplacement</code></dfn> of type <span class="idlMemberType">{{ConstrainBackgroundReplacement}}</span></dt>
+          <dd>
+            <p>See <a>background replacement</a> constrainable property.</p>
+          </dd><!--
+          <dt><dfn><code>backgroundReplacementMode</code></dfn> of type <span class="idlMemberType">{{ConstrainDOMString}}</span></dt>
+          <dd>
+            <p>The string MUST be one of the members of {{BackgroundReplacementMode}}.
+            Constraining the background replacement mode
+            to {{BackgroundReplacementMode/"image"}}
+            without constraining the background replacement source
+            to an image source is not possible.
+            See <a>background replacement mode</a> constrainable property.</p>
+          </dd>
+          <dt><dfn><code>backgroundReplacementSource</code></dfn> of type <span class="idlMemberType">{{ConstrainBackgroundReplacement}}</span></dt>
+          <dd>
+            <p>See <a>background replacement source</a> constrainable property.</p>
+          </dd>-->
         </dl>
       </section>
     </section>
@@ -475,7 +536,9 @@ partial interface MediaStreamTrack {
       <h3>{{MediaTrackSettings}}</h3>
       <pre class="idl"
 >partial dictionary MediaTrackSettings {
-  double backgroundBlur;
+  double    backgroundBlur;
+  DOMString backgroundReplacement;<!--
+  DOMString backgroundReplacementMode;-->
 };</pre>
       <section class="notoc">
         <h4>Dictionary {{MediaTrackSettings}} Members</h4>
@@ -483,6 +546,47 @@ partial interface MediaStreamTrack {
           <dt><dfn><code>backgroundBlur</code></dfn> of type <span class="idlMemberType">{{double}}</span></dt>
           <dd>
             <p>Current <a>background blur</a> setting.</p>
+          </dd>
+          <dt><dfn><code>backgroundReplacement</code></dfn> of type <span class="idlMemberType">{{DOMString}}</span></dt>
+          <dd>
+            <p>Current <a>background replacement</a> mode setting.
+            The string MUST be a member of {{BackgroundReplacementMode}}.</p>
+          </dd><!--
+          <dt><dfn><code>backgroundReplacementMode</code></dfn> of type <span class="idlMemberType">{{DOMString}}</span></dt>
+          <dd>
+            <p>Current <a>background replacement mode</a> setting.
+            The string MUST be a member of {{BackgroundReplacementMode}}.</p>
+          </dd>-->
+        </dl>
+      </section>
+    </section>
+    <section>
+      <h3>{{BackgroundReplacementMode}}</h3>
+      <pre class="idl"
+>enum BackgroundReplacementMode {
+  "none",
+  "blur",
+  "image"
+};</pre>
+      <section class="notoc">
+        <h4>{{BackgroundReplacementMode}} Enumeration Description</h4>
+        <dl data-dfn-for="BackgroundReplacementMode" data-link-for="BackgroundReplacementMode">
+          <dt><dfn><code>none</code></dfn></dt>
+          <dd>
+            <p>This source does not support background replacement<!--.
+            For setting, this is interpreted as a command to turn of
+            the background replacement-->.</p>
+          </dd>
+          <dt><dfn><code>blur</code></dfn></dt>
+          <dd>
+            <p>This source supports background blurring<!--,
+            or such a mode is requested-->.</p>
+            <p class="note" title="TODO">Is this useful?</p>
+          </dd>
+          <dt><dfn><code>image</code></dfn></dt>
+          <dd>
+            <p>This source supports background replacement images<!--,
+            or such a mode is requested-->.</p>
           </dd>
         </dl>
       </section>
@@ -497,6 +601,19 @@ partial interface MediaStreamTrack {
           but the value of 0.0 indicates no background blur and
           increasing values indicate increasing background blur.</p>
         </li>
+        <li>
+          <p><dfn>Background replacement</dfn> descibes how the
+          background is to be replaced.</p>
+        </li><!--
+        <li>
+          <p><dfn>Background replacement mode</dfn> descibes how the
+          background is to be replaced.</p>
+        </li>
+        <li>
+          <p><dfn>Background replacement source</dfn> is the
+          source of the background replacement such as an image
+          bitmap.</p>
+        </li>-->
       </ol>
     </section>
     <section>
@@ -510,7 +627,13 @@ const [videoTrack] = stream.getVideoTracks();
 
 // Try to conceal background.
 const videoCapabilities = videoTrack.getCapabilities();
-if (videoCapabilities.backgroundBlur) {
+if ((videoCapabilities.backgroundReplacement || []).includes('image')) {
+  const image = new Image(height, width);
+  image.src = "mybackground.jpg";
+  await videoTrack.applyConstraints({
+    advanced: [{backgroundReplacement: image}]
+  });
+} else if (videoCapabilities.backgroundBlur) {
   await videoTrack.applyConstraints({
     advanced: [{backgroundBlur: videoCapabilities.backgroundBlur.max}]
   });
