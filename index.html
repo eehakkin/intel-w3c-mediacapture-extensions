@@ -445,6 +445,7 @@ partial interface MediaStreamTrack {
   FrozenArray&lt;Point2D&gt;              contour;
   FrozenArray&lt;Point2D&gt;              mesh;
   FrozenArray&lt;DetectedFaceLandmark&gt; landmarks;
+  sequence&lt;FaceExpression&gt;          expressions;
 };</pre>
       <section class="notoc">
         <h4>Dictionary {{DetectedFace}} Members</h4>
@@ -504,6 +505,15 @@ partial interface MediaStreamTrack {
             <code>true</code>,
             then this member will not exist.</p>
           </dd>
+          <dt><dfn><code>expressions</code></dfn> of type <span class="idlMemberType">sequence&lt;{{FaceExpression}}&gt;</span></dt>
+          <dd>
+            <p>A series of face expressions that it is currently
+            expressing.</p>
+            <p>If the current {{MediaTrackSettings/faceDetectionExpressions}}
+            setting of the {{MediaStreamTrack}} object is not
+            <code>true</code>,
+            then this member will not exist.</p>
+          </dd>
         </dl>
       </section>
     </section>
@@ -530,6 +540,28 @@ partial interface MediaStreamTrack {
           <dt><dfn><code>type</code></dfn> of type <span class="idlMemberType">{{FaceLandmark}}</span></dt>
           <dd><p>The type of the detected landmark.</p></dd>
         </dl>
+      </section>
+    </section>
+    <section>
+      <h3>{{FaceExpression}}</h3>
+<pre class="idl"
+>enum FaceExpression {
+  "blink",
+  "smile"
+};</pre>
+      <section class="notoc">
+        <h4>{{FaceExpression}} Enumeration Description</h4>
+        <dl data-dfn-for="FaceExpression" data-link-for="FaceExpression">
+          <dt><dfn><code>blink</code></dfn></dt>
+          <dd><p>The detected face is blinking.</p></dd>
+          <dt><dfn><code>smile</code></dfn></dt>
+          <dd><p>The detected face is smiling.</p></dd>
+        </dl>
+        <p class="note">
+          Other face expressions such as anger, disgust, fear,
+          happiness, sadness and surprise are too controversial at this
+          time but may be reconsidered later.
+        </p>
       </section>
     </section>
     <section>
@@ -566,6 +598,7 @@ partial interface MediaStreamTrack {
 <pre class="idl"
 >partial dictionary MediaTrackSupportedConstraints {
   boolean faceDetectionMode = true;
+  boolean faceDetectionExpressions = true;
   boolean faceDetectionLandmarks = true;
   boolean faceDetectionMaxNumFaces = true;
   boolean faceDetectionNumContourPoints = true;
@@ -577,6 +610,11 @@ partial interface MediaStreamTrack {
           <dt><dfn><code>faceDetectionMode</code></dfn> of type <span class="idlMemberType">{{boolean}}</span>, defaulting to <code>true</code></dt>
           <dd>
             <p>Whether <a>face detection mode</a> constraining is
+            recognized.</p>
+          </dd>
+          <dt><dfn><code>faceDetectionExpressions</code></dfn> of type <span class="idlMemberType">{{boolean}}</span>, defaulting to <code>true</code></dt>
+          <dd>
+            <p>Whether <a>face expression detection mode</a> constraining is
             recognized.</p>
           </dd>
           <dt><dfn><code>faceDetectionLandmarks</code></dfn> of type <span class="idlMemberType">{{boolean}}</span>, defaulting to <code>true</code></dt>
@@ -607,6 +645,7 @@ partial interface MediaStreamTrack {
       <pre class="idl"
 >partial dictionary MediaTrackCapabilities {
   sequence&lt;DOMString&gt; faceDetectionMode;
+  sequence&lt;boolean&gt;   faceDetectionExpressions;
   sequence&lt;boolean&gt;   faceDetectionLandmarks;
   ULongRange          faceDetectionMaxNumFaces;
   ULongRange          faceDetectionNumContourPoints;
@@ -620,6 +659,17 @@ partial interface MediaStreamTrack {
             <p>A sequence of supported <a>face detection modes</a>.
             Each string MUST be one of the members of
             {{FaceDetectionMode}}.</p>
+          </dd>
+          <dt><dfn><code>faceDetectionExpressions</code></dfn> of type <span class="idlMemberType">sequence&lt;{{boolean}}&gt;</span></dt>
+          <dd>
+            <p>A sequence of supported <a>face expression detection modes</a>.
+            If the source cannot do expression detection,
+            a single <code>false</code> is reported.
+            If the expression detection cannot be turned off,
+            a single <code>true</code> is reported.
+            If the script can control the detection,
+            both <code>false</code> and <code>true</code> are reported as
+            possible values.</p>
           </dd>
           <dt><dfn><code>faceDetectionLandmarks</code></dfn> of type <span class="idlMemberType">sequence&lt;{{boolean}}&gt;</span></dt>
           <dd>
@@ -655,6 +705,7 @@ partial interface MediaStreamTrack {
 <pre class="idl"
 >partial dictionary MediaTrackConstraintSet {
   ConstrainDOMString faceDetectionMode;
+  ConstrainBoolean   faceDetectionExpressions;
   ConstrainBoolean   faceDetectionLandmarks;
   ConstrainULong     faceDetectionMaxNumFaces;
   ConstrainULong     faceDetectionNumContourPoints;
@@ -667,6 +718,10 @@ partial interface MediaStreamTrack {
           <dd>
             <p>The string MUST be one of the members of {{FaceDetectionMode}}.
             See <a>face detection mode</a> constrainable property.</p>
+          </dd>
+          <dt><dfn><code>faceDetectionExpressions</code></dfn> of type <span class="idlMemberType">{{ConstrainBoolean}}</span></dt>
+          <dd>
+            <p>See <a>face expression detection mode</a> constrainable property.</p>
           </dd>
           <dt><dfn><code>faceDetectionLandmarks</code></dfn> of type <span class="idlMemberType">{{ConstrainBoolean}}</span></dt>
           <dd>
@@ -692,6 +747,7 @@ partial interface MediaStreamTrack {
 <pre class="idl"
 >partial dictionary MediaTrackSettings {
   DOMString faceDetectionMode;
+  boolean   faceDetectionExpressions;
   boolean   faceDetectionLandmarks;
   long      faceDetectionMaxNumFaces;
   long      faceDetectionNumContourPoints;
@@ -704,6 +760,10 @@ partial interface MediaStreamTrack {
           <dd>
             <p>Current <a>face detection mode</a> setting.
             The string MUST be one of the members of {{FaceDetectionMode}}.</p>
+          </dd>
+          <dt><dfn><code>faceDetectionExpressions</code></dfn> of type <span class="idlMemberType">{{boolean}}</span></dt>
+          <dd>
+            <p>Current <a>face expression detection mode</a> setting.</p>
           </dd>
           <dt><dfn><code>faceDetectionLandmarks</code></dfn> of type <span class="idlMemberType">{{boolean}}</span></dt>
           <dd>
@@ -747,8 +807,9 @@ partial interface MediaStreamTrack {
             <p>This source offers human face presence detection,
             or such a mode is requested.</p>
             <p class="note">This mode may be useful with a <code>true</code>
-            <a>face landmark detection mode</a> in order to detect human face
-            landmarks but not contours or meshes.</p>
+            <a>face expression detection mode</a> or <a>face landmark detection
+            mode</a> in order to detect human face expressions or landmarks
+            but not contours or meshes.</p>
           </dd>
           <dt><dfn><code>contour</code></dfn></dt>
           <dd>
@@ -772,6 +833,10 @@ partial interface MediaStreamTrack {
         <li>
           <p><dfn>Face detection mode</dfn> describes which face details
           (presence, contour points, mesh points) are to be detected.</p>
+        </li>
+        <li>
+          <p><dfn>Face expression detection mode</dfn> describes whether human
+          face expressions are to be detected and exposed.</p>
         </li>
         <li>
           <p><dfn>Face landmark detection mode</dfn> describes whether human
