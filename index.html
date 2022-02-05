@@ -808,41 +808,39 @@ if (supports.faceDetectionMode &amp;&amp;
 
 // Open camera with face detection enabled
 const stream = await navigator.mediaDevices.getUserMedia({
-  video: { faceDetectionMode: 'contour',
-           faceDetectionNumContourPoints: { exact: 4 } }
+  video: {
+    faceDetectionMode: 'contour',
+    faceDetectionNumContourPoints: {exact: 4}
+  }
 });
 const [videoTrack] = stream.getVideoTracks();
 
 // Use a video worker and show to user.
-const videoElement = document.querySelector("video");
-const videoGenerator = new MediaStreamTrackGenerator({kind: 'video'});
-const videoProcessor = new MediaStreamTrackProcessor({track: videoTrack});
-const videoSettings = videoTrack.getSettings();
+const videoElement = document.querySelector('video');
 const videoWorker = new Worker('video-worker.js');
-videoWorker.postMessage({
-  videoReadable: videoProcessor.readable,
-  videoWritable: videoGenerator.writable
-}, [videoProcessor.readable, videoGenerator.writable]);
-videoElement.srcObject = new MediaStream([videoGenerator]);
+videoWorker.postMessage({track: videoTrack}, [videoTrack]);
+const {data} = await new Promise(r => videoWorker.onmessage);
+videoElement.srcObject = new MediaStream([data.videoTrack]);
 
 // video-worker.js:
-self.onmessage = async function(e) {
-  const videoTransformer = new TransformStream({
-    async transform(videoFrame, controller) {
-      for (const face of videoFrame.detectedFaces) {
+self.onmessage = async ({data: {track}}) => {
+  const generator = new VideoTrackGenerator();
+  parent.postMessage({videoTrack: generator.track}, [generator.track]);
+  const {readable} = new MediaStreamTrackProcessor({track});
+  const transformer = new TransformStream({
+    async transform(frame, controller) {
+      for (const face of frame.detectedFaces) {
         console.log(
           `Face @ (${face.contour[0].x}, ${face.contour[0].y}), ` +
                  `(${face.contour[1].x}, ${face.contour[1].y}), ` +
                  `(${face.contour[2].x}, ${face.contour[2].y}), ` +
                  `(${face.contour[3].x}, ${face.contour[3].y})`);
-        controller.enqueue(videoFrame);
+        controller.enqueue(frame);
       }
     }
   });
-  e.data.videoReadable
-  .pipeThrough(videoTransformer)
-  .pipeTo(e.data.videoWritable);
-}
+  await readable.pipeThrough(transformer).pipeTo(generator.writable);
+};
       </pre>
     </section>
   </section>
