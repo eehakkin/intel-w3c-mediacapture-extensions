@@ -1688,5 +1688,57 @@ partial interface MediaStream {
 };</pre>
     </div>
   </section>
+  <section>
+    <h2>Background segmentation mask</h2>
+    <p>Some platforms or User Agents may provide built-in support for background segmentation of video frames, in particular for camera video streams.
+       Web applications may want to control whether background segmentation is computed at the source level and to get access to the computed segmentation masks.
+       This allows the web application for instance
+       to do custom framing or background blurring or replacement
+       while leveraging on platform computed background segmentation.
+       This allows the web application
+       to access the original unmodified frame and
+       to fine tune frame modifications based on its likings.
+       For that reason, we extend {{MediaStreamTrack}} with the following properties and {{VideoFrame}} with the following attributes.
+    </p>
+    <pre class="idl">
+partial dictionary MediaTrackSupportedConstraints {
+  boolean backgroundSegmentationMask = true;
+};
+
+partial dictionary MediaTrackConstraintSet {
+  ConstrainBoolean backgroundSegmentationMask;
+};
+
+partial dictionary MediaTrackSettings {
+  boolean backgroundSegmentationMask;
+};
+
+partial dictionary MediaTrackCapabilities {
+  sequence&lt;boolean&gt; backgroundSegmentationMask;
+};</pre>
+    <section>
+      <h3>VideoFrame interface extensions</h3>
+      <pre class="idl">
+partial interface VideoFrame {
+  readonly attribute VideoFrame? backgroundSegmentationMask;
+};</pre>
+      <section>
+        <h4>Attributes</h4>
+          <dl data-link-for="VideoFrame" data-dfn-for="VideoFrame" class="attributes">
+            <dt><dfn><code>backgroundSegmentationMask</code></dfn>
+                of type
+                <span class="idlAttrType">{{VideoFrame}}</span>,
+                readonly</dt>
+            <dd>
+              <p>A background segmentation mask with
+                 white denoting certainly foreground,
+                 black denoting certainly background and
+                 grey denoting uncertainty.</p>
+            </dd>
+          </dl>
+        </section>
+      </div>
+    </section>
+  </section>
 </body>
 </html>
